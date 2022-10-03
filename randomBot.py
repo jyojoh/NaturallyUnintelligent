@@ -15,6 +15,7 @@ scoreArr = []
 start_time = 0.0
 
 def take_turn():
+    print("Taking turn!")
     start_time = time.time()
     if os.path.exists("move_file"):
         with open("move_file") as f:
@@ -23,17 +24,19 @@ def take_turn():
             opponent_move = moves_taken[3]
     next_board = parse_move(opponent_move) % 9
     next_moves = valid_moves(next_board)
-    next_move = minimax(next_moves, False, 5, -sys.maxsize, sys.maxsize)
 
-    move_string = "NaturallyUnintelligent " + str(next_move//9) + " " + str(next_move % 9)
+
+    move_string = "random " + str(next_moves[0]//9) + " " + str(next_moves[0] % 9)
 
     f = open("move_file", "w")
     f.write(move_string)
 
-    update_board(player_symbol, next_move)
+    update_board(player_symbol, next_moves[0])
 
 
 def coord_convert(i, j):
+    i = int(i)
+    j = int(j)
     return (i * 9) + j
 
 
@@ -41,13 +44,14 @@ def parse_move(str):
     move = str.split()
     symbol = opponent_symbol
 
-    if move[0] == "NaturallyUnintelligent":
+    if move[0] == "random":
         symbol = player_symbol
 
-    sub_board = move[1] #Sub-Board number, from 0-8
-    board_coord = move[2] #Sub-board coordinate, from 0-8
+    sub_board = int(move[1]) #Sub-Board number, from 0-8
+    board_coord = int(move[2]) #Sub-board coordinate, from 0-8
+    print("Opponent placed mark at subboard " + str(sub_board) +", coord " + str(board_coord))
     index = coord_convert(sub_board, board_coord)
-    update_board(symbol, index)
+    update_board(symbol, int(index))
     return index
 
 
@@ -120,55 +124,6 @@ def fill_subboard(sub_board):
         tile = boards_won[sub_board]
 
 
-def minimax(moveset, isMax, depth, a, b):
-    currSymbol = opponent_symbol
-    best_move = 0
-
-    if time.time() - start_time >= 0.09:
-        return best_move
-    if depth == 0:
-        return best_move
-
-    if isMax:
-        currSymbol = player_symbol
-        for idx, move in enumerate(moveset):
-            score = heuristic(move, currSymbol)
-            if score > a:
-                best_move = move
-            minimax(valid_moves(move // 9), not isMax, depth - 1, a, b)
-            board_state[move] = "EMPTY"
-
-            if a >= b:
-                break
-
-        return best_move
-
-    else:
-        currSymbol = opponent_symbol
-        for idx, move in enumerate(moveset):
-            score = -heuristic(move, currSymbol)
-            if score < b:
-                best_move = move
-            minimax(valid_moves(move // 9), not isMax, depth - 1, a, b)
-            board_state[move] = "EMPTY"
-
-            if a >= b:
-                break
-        return best_move
-
-
-def heuristic(move, symbol):
-    move_score = 0
-    board_state[move] = symbol
-    if check_win(move // 9, True):
-        move_score += 1
-
-    if check_block(move):
-        move_score += 2
-
-    return move_score
-
-
 def valid_moves(next_board):
     moveset = []
 
@@ -195,16 +150,16 @@ if __name__ == '__main__':
     board_state = ["EMPTY" for x in range(81)]
     boards_won = ["None" for x in range(9)]
     while not os.path.exists("end_game"):
-        if(len(moves_taken) == 0):
+        if("random.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves")):
             with open("first_four_moves", "r") as f:
                 moves_taken = f.readlines()
                 for val in moves_taken:
                     val_split = val.split()
-                    if val_split[0] == "NaturallyUnintelligent":
+                    if val_split[0] == "random":
                         update_board(player_symbol, coord_convert(val_split[1], val_split[2]))
                     else:
                         update_board(opponent_symbol, coord_convert(val_split[1], val_split[2]))
-        if os.path.exists("NaturallyUnintelligent.go"):
+        if os.path.exists("random.go"):
             if canPlay:
                 take_turn()
                 turn_num += 1
