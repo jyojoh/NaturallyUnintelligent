@@ -26,7 +26,7 @@ def take_turn():
 
     print(next_move)
 
-    move_string = "NaturallyUnintelligent " + str(next_move//9) + " " + str(next_move % 9)
+    move_string = "NaturallyUnintelligent2 " + str(next_move//9) + " " + str(next_move % 9)
     print(move_string)
 
     f = open("move_file", "w")
@@ -45,7 +45,7 @@ def parse_move(str):
     move = str.split()
     symbol = opponent_symbol
 
-    if move[0] == "NaturallyUnintelligent":
+    if move[0] == "NaturallyUnintelligent2":
         symbol = player_symbol
 
     sub_board = int(move[1]) #Sub-Board number, from 0-8
@@ -179,31 +179,12 @@ def heuristic(move, symbol):
 
     if check_opponent_win(move):
         move_score -= 2
-        if move//9 == 4:
-            move_score -= 1
-
-    if check_player_win(move):
-        move_score -= 1
-        if move//9 == 4:
-            move_score -= 1
 
     if move % 9 == 4:
         move_score += 1
 
     return move_score
 
-
-def check_player_win(move):
-    sub_board = move // 9
-    check_moves = valid_moves(sub_board)
-
-    for index in range(len(check_moves)):
-        board_state[check_moves[index]] = player_symbol
-        if check_win(sub_board, True):
-            board_state[check_moves[index]] = "EMPTY"
-            return True
-        board_state[check_moves[index]] = "EMPTY"
-    return False
 
 
 def check_opponent_win(move):
@@ -246,16 +227,16 @@ if __name__ == '__main__':
     board_state = ["EMPTY" for x in range(81)]
     boards_won = ["None" for x in range(9)]
     while not os.path.exists("end_game"):
-        if("NaturallyUnintelligent.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves")):
+        if("NaturallyUnintelligent2.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves")):
             with open("first_four_moves", "r") as f:
                 moves_taken = f.readlines()
                 for val in moves_taken:
                     val_split = val.split()
-                    if val_split[0] == "NaturallyUnintelligent":
+                    if val_split[0] == "NaturallyUnintelligent2":
                         update_board(player_symbol, coord_convert(val_split[1], val_split[2]))
                     else:
                         update_board(opponent_symbol, coord_convert(val_split[1], val_split[2]))
-        if os.path.exists("NaturallyUnintelligent.go"):
+        if os.path.exists("NaturallyUnintelligent2.go"):
             if canPlay:
                 take_turn()
                 turn_num += 1
