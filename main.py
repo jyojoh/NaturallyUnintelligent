@@ -5,7 +5,7 @@ import time
 
 player_symbol = "O"
 opponent_symbol = "X"
-time_limit = 1000.0
+time_limit = 10.0
 turn_num = 0
 moves_taken = []
 board_state = []
@@ -22,7 +22,7 @@ def take_turn():
     next_board = parse_move(opponent_move) % 9
     print("Next board is " + str(next_board))
     next_moves = valid_moves(next_board)
-    next_move = minimax(next_moves, True, 4, -sys.maxsize, sys.maxsize, next_moves[0], time.time())
+    next_move = minimax(next_moves, True, 6, -sys.maxsize, sys.maxsize, next_moves[0], time.time())
 
     print(next_move)
 
@@ -87,9 +87,9 @@ def check_win(sub_board, eval):
             boards_won[sub_board] = board_state[center_index - 4]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -3] == board_state[center_index-1] and board_state[center_index -3] == board_state[center_index+3] and board_state[center_index - 3] != "EMPTY": #Second column
+    elif board_state[center_index - 3] == board_state[center_index] and board_state[center_index] == board_state[center_index + 3] and board_state[center_index] != "EMPTY":  # Second column
         if not eval:
-            boards_won[sub_board] = board_state[center_index -3]
+            boards_won[sub_board] = board_state[center_index - 3]
             fill_subboard(sub_board)
         return True
     elif board_state[center_index -2] == board_state[center_index+1] and board_state[center_index -2] == board_state[center_index+4] and board_state[center_index - 2] != "EMPTY": #Third column
@@ -121,8 +121,11 @@ def check_block(move):
 
 
 def fill_subboard(sub_board):
-    for tile in board_state[sub_board * 9 : sub_board * 9 + 9]:
-        tile = boards_won[sub_board]
+    print("filling subboard" + str(sub_board))
+    for idx in range(sub_board * 9, sub_board*9 + 9):
+        board_state[idx] = "Filled"
+    print(boards_won)
+    print(board_state)
 
 
 def minimax(moveset, isMax, depth, a, b, best_move, start_time):
@@ -169,10 +172,10 @@ def heuristic(move, symbol):
     move_score = 0
     board_state[move] = symbol
     if check_win(move // 9, True):
-        move_score += 1
+        move_score += 2
 
     if check_block(move):
-        move_score += 2
+        move_score += 3
 
     return move_score
 

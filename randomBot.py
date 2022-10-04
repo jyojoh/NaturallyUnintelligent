@@ -86,7 +86,7 @@ def check_win(sub_board, eval):
             boards_won[sub_board] = board_state[center_index - 4]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -3] == board_state[center_index-1] and board_state[center_index -3] == board_state[center_index+3] and board_state[center_index - 3] != "EMPTY": #Second column
+    elif board_state[center_index - 3] == board_state[center_index] and board_state[center_index] == board_state[center_index + 3] and board_state[center_index] != "EMPTY":  # Second column
         if not eval:
             boards_won[sub_board] = board_state[center_index -3]
             fill_subboard(sub_board)
@@ -111,8 +111,11 @@ def check_win(sub_board, eval):
 
 
 def fill_subboard(sub_board):
-    for tile in board_state[sub_board * 9 : sub_board * 9 + 9]:
-        tile = boards_won[sub_board]
+    print("filling subboard" + str(sub_board))
+    for idx in range(sub_board * 9, sub_board*9 + 9):
+        board_state[idx] = "Filled"
+    print(boards_won)
+    print(board_state)
 
 
 def valid_moves(next_board):
