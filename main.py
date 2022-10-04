@@ -23,14 +23,14 @@ def take_turn():
     print("Next board is " + str(next_board))
     next_moves = valid_moves(next_board)
     next_move = minimax(next_moves, True, 6, -sys.maxsize, sys.maxsize, next_moves[0], time.time())
-
-    print(next_move)
-
     move_string = "NaturallyUnintelligent " + str(next_move//9) + " " + str(next_move % 9)
     print(move_string)
 
-    f = open("move_file", "w")
+    f = open("move_file", "r+")
+    f.seek(0)
     f.write(move_string)
+    f.truncate()
+    f.close()
 
     update_board(player_symbol, next_move)
 
@@ -121,11 +121,9 @@ def check_block(move):
 
 
 def fill_subboard(sub_board):
-    print("filling subboard" + str(sub_board))
     for idx in range(sub_board * 9, sub_board*9 + 9):
         board_state[idx] = "Filled"
-    print(boards_won)
-    print(board_state)
+    print(str(sub_board) + " has been won.")
 
 
 def minimax(moveset, isMax, depth, a, b, best_move, start_time):
@@ -133,7 +131,7 @@ def minimax(moveset, isMax, depth, a, b, best_move, start_time):
     currSymbol = opponent_symbol
 
     if time.time() - start_time >= time_limit - 0.1:
-         print("No Time!")
+         print("No Time! Returning best move.")
          return bMove
     if depth == 0:
         return bMove
@@ -150,7 +148,7 @@ def minimax(moveset, isMax, depth, a, b, best_move, start_time):
 
             if a >= b:
                 break
-        print("Returning!")
+
         return bMove
 
     else:
@@ -178,23 +176,29 @@ def heuristic(move, symbol):
         move_score += 3
 
     if check_opponent_win(move):
-        move_score -= 2
-        if move//9 == 4:
+        move_score -= 3
+        if move // 9 == 4:
             move_score -= 1
 
+    #If player wins on subsequent board in 1 move, don't send opponent to that board. This causes loss.
     if check_player_win(move):
         move_score -= 1
         if move//9 == 4:
             move_score -= 1
 
+    #Want to take center tile in sub-board. This ensures victory.
     if move % 9 == 4:
         move_score += 1
+        if move // 9 == 4:
+            move_score += 1
 
     return move_score
 
 
 def check_player_win(move):
     sub_board = move // 9
+    if(boards_won[sub_board] != "None"):
+        return False
     check_moves = valid_moves(sub_board)
 
     for index in range(len(check_moves)):
@@ -208,6 +212,8 @@ def check_player_win(move):
 
 def check_opponent_win(move):
     sub_board = move//9
+    if (boards_won[sub_board] != "None"):
+        return False
     check_moves = valid_moves(sub_board)
 
     for index in range(len(check_moves)):
@@ -237,7 +243,7 @@ def valid_moves(next_board):
         for index, tile in enumerate(board_state):
             if tile == "EMPTY":
                 moveset.append(index)
-    print(str(moveset))
+
     return moveset
 
 

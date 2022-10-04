@@ -29,8 +29,11 @@ def take_turn():
     move_string = "NaturallyUnintelligent2 " + str(next_move//9) + " " + str(next_move % 9)
     print(move_string)
 
-    f = open("move_file", "w")
+    f = open("move_file", "r+")
+    f.seek(0)
     f.write(move_string)
+    f.truncate()
+    f.close()
 
     update_board(player_symbol, next_move)
 
