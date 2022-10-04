@@ -5,27 +5,29 @@ import time
 
 player_symbol = "O"
 opponent_symbol = "X"
-time_limit = 10
+time_limit = 1000.0
 turn_num = 0
 moves_taken = []
 board_state = []
 opponent_move = ""
 boards_won = []
 scoreArr = []
-start_time = 0.0
 
 def take_turn():
-    start_time = time.time()
     if os.path.exists("move_file"):
         with open("move_file") as f:
             opponent_move = f.readline()
         if os.path.getsize("move_file") == 0:
             opponent_move = moves_taken[3]
     next_board = parse_move(opponent_move) % 9
+    print("Next board is " + str(next_board))
     next_moves = valid_moves(next_board)
-    next_move = minimax(next_moves, False, 5, -sys.maxsize, sys.maxsize)
+    next_move = minimax(next_moves, True, 4, -sys.maxsize, sys.maxsize, next_moves[0], time.time())
+
+    print(next_move)
 
     move_string = "NaturallyUnintelligent " + str(next_move//9) + " " + str(next_move % 9)
+    print(move_string)
 
     f = open("move_file", "w")
     f.write(move_string)
@@ -34,6 +36,8 @@ def take_turn():
 
 
 def coord_convert(i, j):
+    i = int(i)
+    j = int(j)
     return (i * 9) + j
 
 
@@ -44,8 +48,8 @@ def parse_move(str):
     if move[0] == "NaturallyUnintelligent":
         symbol = player_symbol
 
-    sub_board = move[1] #Sub-Board number, from 0-8
-    board_coord = move[2] #Sub-board coordinate, from 0-8
+    sub_board = int(move[1]) #Sub-Board number, from 0-8
+    board_coord = int(move[2]) #Sub-board coordinate, from 0-8
     index = coord_convert(sub_board, board_coord)
     update_board(symbol, index)
     return index
@@ -53,6 +57,7 @@ def parse_move(str):
 
 def update_board(symbol, index):
     board_state[index] = symbol
+    print("Placing " + symbol + " at " + "subboard " + str(index // 9) + " coord " + str(index%9))
     check_win(index // 9, False)
 
 
@@ -120,41 +125,44 @@ def fill_subboard(sub_board):
         tile = boards_won[sub_board]
 
 
-def minimax(moveset, isMax, depth, a, b):
+def minimax(moveset, isMax, depth, a, b, best_move, start_time):
+    bMove = best_move
     currSymbol = opponent_symbol
-    best_move = 0
 
-    if time.time() - start_time >= 0.09:
-        return best_move
+    if time.time() - start_time >= time_limit - 0.1:
+         print("No Time!")
+         return bMove
     if depth == 0:
-        return best_move
+        return bMove
 
     if isMax:
         currSymbol = player_symbol
-        for idx, move in enumerate(moveset):
+        for move in moveset:
             score = heuristic(move, currSymbol)
             if score > a:
-                best_move = move
-            minimax(valid_moves(move // 9), not isMax, depth - 1, a, b)
+                a = score
+                bMove = move
+            minimax(valid_moves(move % 9), not isMax, depth - 1, a, b, bMove, start_time)
             board_state[move] = "EMPTY"
 
             if a >= b:
                 break
-
-        return best_move
+        print("Returning!")
+        return bMove
 
     else:
         currSymbol = opponent_symbol
         for idx, move in enumerate(moveset):
             score = -heuristic(move, currSymbol)
             if score < b:
-                best_move = move
-            minimax(valid_moves(move // 9), not isMax, depth - 1, a, b)
+                b = score
+                bMove = move
+            minimax(valid_moves(move % 9), not isMax, depth - 1, a, b, bMove, start_time)
             board_state[move] = "EMPTY"
 
             if a >= b:
                 break
-        return best_move
+        return bMove
 
 
 def heuristic(move, symbol):
@@ -187,6 +195,7 @@ def valid_moves(next_board):
         for index, tile in enumerate(board_state):
             if tile == "EMPTY":
                 moveset.append(index)
+    print(str(moveset))
     return moveset
 
 
@@ -195,7 +204,7 @@ if __name__ == '__main__':
     board_state = ["EMPTY" for x in range(81)]
     boards_won = ["None" for x in range(9)]
     while not os.path.exists("end_game"):
-        if(len(moves_taken) == 0):
+        if("NaturallyUnintelligent.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves")):
             with open("first_four_moves", "r") as f:
                 moves_taken = f.readlines()
                 for val in moves_taken:

@@ -27,6 +27,7 @@ def take_turn():
 
 
     move_string = "random " + str(next_moves[0]//9) + " " + str(next_moves[0] % 9)
+    print(move_string)
 
     f = open("move_file", "w")
     f.write(move_string)
@@ -49,7 +50,6 @@ def parse_move(str):
 
     sub_board = int(move[1]) #Sub-Board number, from 0-8
     board_coord = int(move[2]) #Sub-board coordinate, from 0-8
-    print("Opponent placed mark at subboard " + str(sub_board) +", coord " + str(board_coord))
     index = coord_convert(sub_board, board_coord)
     update_board(symbol, int(index))
     return index
@@ -107,15 +107,6 @@ def check_win(sub_board, eval):
             fill_subboard(sub_board)
         return True
 
-    return False
-
-
-def check_block(move):
-    board_state[move] = opponent_symbol
-    if check_win(move//9, True):
-        board_state[move] = "EMPTY"
-        return True
-    board_state[move] = "EMPTY"
     return False
 
 
