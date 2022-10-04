@@ -1,4 +1,3 @@
-
 import sys
 import os
 import time
@@ -6,12 +5,11 @@ import time
 player_symbol = "O"
 opponent_symbol = "X"
 time_limit = 10.0
-turn_num = 0
 moves_taken = []
 board_state = []
-opponent_move = ""
 boards_won = []
 scoreArr = []
+
 
 def take_turn():
     if os.path.exists("move_file"):
@@ -23,7 +21,7 @@ def take_turn():
     print("Next board is " + str(next_board))
     next_moves = valid_moves(next_board)
     next_move = minimax(next_moves, True, 6, -sys.maxsize, sys.maxsize, next_moves[0], time.time())
-    move_string = "NaturallyUnintelligent " + str(next_move//9) + " " + str(next_move % 9)
+    move_string = "NaturallyUnintelligent " + str(next_move // 9) + " " + str(next_move % 9)
     print(move_string)
 
     f = open("move_file", "r+")
@@ -48,8 +46,8 @@ def parse_move(str):
     if move[0] == "NaturallyUnintelligent":
         symbol = player_symbol
 
-    sub_board = int(move[1]) #Sub-Board number, from 0-8
-    board_coord = int(move[2]) #Sub-board coordinate, from 0-8
+    sub_board = int(move[1])  # Sub-Board number, from 0-8
+    board_coord = int(move[2])  # Sub-board coordinate, from 0-8
     index = coord_convert(sub_board, board_coord)
     update_board(symbol, index)
     return index
@@ -57,7 +55,7 @@ def parse_move(str):
 
 def update_board(symbol, index):
     board_state[index] = symbol
-    print("Placing " + symbol + " at " + "subboard " + str(index // 9) + " coord " + str(index%9))
+    print("Placing " + symbol + " at " + "subboard " + str(index // 9) + " coord " + str(index % 9))
     check_win(index // 9, False)
 
 
@@ -67,22 +65,22 @@ def check_win(sub_board, eval):
 
     center_index = sub_board * 9 + 4
 
-    if board_state[center_index -1] == board_state[center_index] and board_state[center_index +1] == board_state[center_index] and board_state[center_index - 1] != "EMPTY": #Center row
+    if board_state[center_index - 1] == board_state[center_index] and board_state[center_index + 1] == board_state[center_index] and board_state[center_index - 1] != "EMPTY":  # Center row
         if not eval:
-            boards_won[sub_board] = board_state[center_index -1]
+            boards_won[sub_board] = board_state[center_index - 1]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index +2] == board_state[center_index+3] and board_state[center_index +4] == board_state[center_index+3] and board_state[center_index +2] != "EMPTY": #Bottom row
+    elif board_state[center_index + 2] == board_state[center_index + 3] and board_state[center_index + 4] == board_state[center_index + 3] and board_state[center_index + 2] != "EMPTY":  # Bottom row
         if not eval:
-            boards_won[sub_board] = board_state[center_index +2]
+            boards_won[sub_board] = board_state[center_index + 2]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -4] == board_state[center_index-3] and board_state[center_index -2] == board_state[center_index-3] and board_state[center_index - 4] != "EMPTY": #Top row
+    elif board_state[center_index - 4] == board_state[center_index - 3] and board_state[center_index - 2] == board_state[center_index - 3] and board_state[center_index - 4] != "EMPTY":  # Top row
         if not eval:
-            boards_won[sub_board] = board_state[center_index -4]
+            boards_won[sub_board] = board_state[center_index - 4]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -4] == board_state[center_index-1] and board_state[center_index -4] == board_state[center_index+2] and board_state[center_index - 4] != "EMPTY": #First column
+    elif board_state[center_index - 4] == board_state[center_index - 1] and board_state[center_index - 4] == board_state[center_index + 2] and board_state[center_index - 4] != "EMPTY":  # First column
         if not eval:
             boards_won[sub_board] = board_state[center_index - 4]
             fill_subboard(sub_board)
@@ -92,19 +90,19 @@ def check_win(sub_board, eval):
             boards_won[sub_board] = board_state[center_index - 3]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -2] == board_state[center_index+1] and board_state[center_index -2] == board_state[center_index+4] and board_state[center_index - 2] != "EMPTY": #Third column
+    elif board_state[center_index - 2] == board_state[center_index + 1] and board_state[center_index - 2] == board_state[center_index + 4] and board_state[center_index - 2] != "EMPTY":  # Third column
         if not eval:
-            boards_won[sub_board] = board_state[center_index -2]
+            boards_won[sub_board] = board_state[center_index - 2]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -4] == board_state[center_index] and board_state[center_index] == board_state[center_index+4] and board_state[center_index] != "EMPTY": #Top Left Bottom Right Diag
+    elif board_state[center_index - 4] == board_state[center_index] and board_state[center_index] == board_state[center_index + 4] and board_state[center_index] != "EMPTY":  # Top Left Bottom Right Diag
         if not eval:
-            boards_won[sub_board] = board_state[center_index -4]
+            boards_won[sub_board] = board_state[center_index - 4]
             fill_subboard(sub_board)
         return True
-    elif board_state[center_index -2] == board_state[center_index] and board_state[center_index] == board_state[center_index+2] and board_state[center_index] != "EMPTY": #Top Right Bottom Left Diag
+    elif board_state[center_index - 2] == board_state[center_index] and board_state[center_index] == board_state[center_index + 2] and board_state[center_index] != "EMPTY":  # Top Right Bottom Left Diag
         if not eval:
-            boards_won[sub_board] = board_state[center_index -2]
+            boards_won[sub_board] = board_state[center_index - 2]
             fill_subboard(sub_board)
         return True
 
@@ -113,7 +111,7 @@ def check_win(sub_board, eval):
 
 def check_block(move):
     board_state[move] = opponent_symbol
-    if check_win(move//9, True):
+    if check_win(move // 9, True):
         board_state[move] = "EMPTY"
         return True
     board_state[move] = "EMPTY"
@@ -121,7 +119,7 @@ def check_block(move):
 
 
 def fill_subboard(sub_board):
-    for idx in range(sub_board * 9, sub_board*9 + 9):
+    for idx in range(sub_board * 9, sub_board * 9 + 9):
         board_state[idx] = "Filled"
     print(str(sub_board) + " has been won.")
 
@@ -131,8 +129,8 @@ def minimax(moveset, isMax, depth, a, b, best_move, start_time):
     currSymbol = opponent_symbol
 
     if time.time() - start_time >= time_limit - 0.1:
-         print("No Time! Returning best move.")
-         return bMove
+        print("No Time! Returning best move.")
+        return bMove
     if depth == 0:
         return bMove
 
@@ -180,13 +178,13 @@ def heuristic(move, symbol):
         if move // 9 == 4:
             move_score -= 1
 
-    #If player wins on subsequent board in 1 move, don't send opponent to that board. This causes loss.
+    # If player wins on subsequent board in 1 move, don't send opponent to that board. This causes loss.
     if check_player_win(move):
         move_score -= 1
-        if move//9 == 4:
+        if move // 9 == 4:
             move_score -= 1
 
-    #Want to take center tile in sub-board. This ensures victory.
+    # Want to take center tile in sub-board. This ensures victory.
     if move % 9 == 4:
         move_score += 1
         if move // 9 == 4:
@@ -197,7 +195,7 @@ def heuristic(move, symbol):
 
 def check_player_win(move):
     sub_board = move // 9
-    if(boards_won[sub_board] != "None"):
+    if boards_won[sub_board] != "None":
         return False
     check_moves = valid_moves(sub_board)
 
@@ -211,8 +209,8 @@ def check_player_win(move):
 
 
 def check_opponent_win(move):
-    sub_board = move//9
-    if (boards_won[sub_board] != "None"):
+    sub_board = move // 9
+    if boards_won[sub_board] != "None":
         return False
     check_moves = valid_moves(sub_board)
 
@@ -234,7 +232,7 @@ def valid_moves(next_board):
                 moveset.append(index)
         return moveset
 
-    subboard_state = board_state[next_board * 9 : next_board * 9 + 9]
+    subboard_state = board_state[next_board * 9: next_board * 9 + 9]
     for index, tile in enumerate(subboard_state):
         if tile == "EMPTY":
             moveset.append(index + (next_board * 9))
@@ -252,7 +250,7 @@ if __name__ == '__main__':
     board_state = ["EMPTY" for x in range(81)]
     boards_won = ["None" for x in range(9)]
     while not os.path.exists("end_game"):
-        if("NaturallyUnintelligent.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves")):
+        if "NaturallyUnintelligent.go" and len(moves_taken) == 0 and os.path.exists("first_four_moves"):
             with open("first_four_moves", "r") as f:
                 moves_taken = f.readlines()
                 for val in moves_taken:
@@ -264,7 +262,6 @@ if __name__ == '__main__':
         if os.path.exists("NaturallyUnintelligent.go"):
             if canPlay:
                 take_turn()
-                turn_num += 1
                 canPlay = False
         else:
             canPlay = True
